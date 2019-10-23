@@ -1,0 +1,488 @@
+services:
+  service00:
+    parameters:
+      api_url: http://pipeline-service/pipeline/pipelines/d141fb5b-b9cf-4d0e-b799-28fdb6a036f4
+      configuration:
+        content:
+          $text: pipeline_service00.yml
+      external_api_url: https://pipeline-service.eu-de.devops.cloud.ibm.com/pipeline/pipelines/d141fb5b-b9cf-4d0e-b799-28fdb6a036f4
+      label: pass-subject-address-assignment
+      name: pass-subject-address-assignment
+      services:
+      - service11
+      ui_pipeline: true
+    service_id: pipeline
+  service01:
+    parameters:
+      dashboard_url: https://ibermicrodevfordatavpnfr.eu-de.containers.appdomain.cloud/nexus
+      label: Nexus
+      mirror_url: https://ibermicrodevfordatavpnfr.eu-de.containers.appdomain.cloud/nexus/repository/maven-public/
+      name: Nexus
+      release_url: https://ibermicrodevfordatavpnfr.eu-de.containers.appdomain.cloud/nexus/repository/maven-releases/
+      snapshot_url: https://ibermicrodevfordatavpnfr.eu-de.containers.appdomain.cloud/nexus/repository/maven-snapshots/
+      token: ""
+      type: maven
+      user_id: deploy
+    service_id: nexus
+  service02:
+    parameters:
+      api_url: http://pipeline-service/pipeline/pipelines/4e5dbfcb-280c-4179-92b0-d86eca4f46c1
+      configuration:
+        content:
+          $text: pipeline_service02.yml
+      external_api_url: https://pipeline-service.eu-de.devops.cloud.ibm.com/pipeline/pipelines/4e5dbfcb-280c-4179-92b0-d86eca4f46c1
+      label: pass-role-permissions
+      name: pass-role-permissions
+      services:
+      - service23
+      ui_pipeline: true
+    service_id: pipeline
+  service03:
+    parameters:
+      api_url: http://pipeline-service/pipeline/pipelines/0618bf06-38fc-4bd0-acf7-c78dd3b56c49
+      configuration:
+        content:
+          $text: pipeline_service03.yml
+      external_api_url: https://pipeline-service.eu-de.devops.cloud.ibm.com/pipeline/pipelines/0618bf06-38fc-4bd0-acf7-c78dd3b56c49
+      label: pass-roles-user-catalog
+      name: pass-roles-user-catalog
+      services:
+      - service13
+      ui_pipeline: true
+    service_id: pipeline
+  service04:
+    parameters:
+      api_url: http://pipeline-service/pipeline/pipelines/ec902304-1dbb-4353-896a-52fe90465be4
+      configuration:
+        content:
+          $text: pipeline_service04.yml
+      external_api_url: https://pipeline-service.eu-de.devops.cloud.ibm.com/pipeline/pipelines/ec902304-1dbb-4353-896a-52fe90465be4
+      label: pass-subjects
+      name: pass-subjects
+      services:
+      - service12
+      ui_pipeline: true
+    service_id: pipeline
+  service05:
+    parameters:
+      api_url: http://pipeline-service/pipeline/pipelines/74c2f1b8-7c28-4e87-bab4-a4e9368986d7
+      configuration:
+        content:
+          $text: pipeline_service05.yml
+      external_api_url: https://pipeline-service.eu-de.devops.cloud.ibm.com/pipeline/pipelines/74c2f1b8-7c28-4e87-bab4-a4e9368986d7
+      label: pass-funcodes-catalog
+      name: pass-funcodes-catalog
+      services:
+      - service20
+      ui_pipeline: true
+    service_id: pipeline
+  service06:
+    parameters:
+      api_root_url: https://gitlab.com/api
+      authorized: gitlab
+      enable_traceability: false
+      extra_capabilities:
+      - capability_id: git.issues
+        dashboard_url: https://gitlab.com/passengerplus_console/c_ms_addresses/issues
+        display_name: Issues
+        enabled: true
+        label: c_ms_addresses
+        readme: false
+        tags:
+        - think
+        - code
+      git_id: gitlab
+      has_issues: true
+      label: c_ms_addresses
+      owner_id: passengerplus_console
+      private_repo: true
+      repo_name: c_ms_addresses
+      repo_url: https://gitlab.com/passengerplus_console/c_ms_addresses.git
+      token_url: https://otc-github-consolidated-broker.eu-de.devops.cloud.ibm.com/github/token?git_id=gitlab
+      type: link
+    service_id: gitlab
+  service07:
+    parameters:
+      api_root_url: https://gitlab.com/api
+      authorized: gitlab
+      enable_traceability: false
+      extra_capabilities:
+      - capability_id: git.issues
+        dashboard_url: https://gitlab.com/passengerplus_console/c_ms_lookupservicetree/issues
+        display_name: Issues
+        enabled: true
+        label: c_ms_lookupservicetree
+        readme: false
+        tags:
+        - think
+        - code
+      git_id: gitlab
+      has_issues: true
+      label: c_ms_lookupservicetree
+      owner_id: passengerplus_console
+      private_repo: true
+      repo_name: c_ms_lookupservicetree
+      repo_url: https://gitlab.com/passengerplus_console/c_ms_lookupservicetree.git
+      token_url: https://otc-github-consolidated-broker.eu-de.devops.cloud.ibm.com/github/token?git_id=gitlab
+      type: link
+    service_id: gitlab
+  service08:
+    parameters:
+      api_url: http://pipeline-service/pipeline/pipelines/abde9098-94b0-45b5-adbb-9b4999a739c9
+      configuration:
+        content:
+          $text: pipeline_service08.yml
+      external_api_url: https://pipeline-service.eu-de.devops.cloud.ibm.com/pipeline/pipelines/abde9098-94b0-45b5-adbb-9b4999a739c9
+      label: pass-alerts
+      name: pass-alerts
+      services:
+      - service17
+      ui_pipeline: true
+    service_id: pipeline
+  service09:
+    parameters:
+      api_url: http://pipeline-service/pipeline/pipelines/9035b26b-0117-4e2c-bc99-e81631b62bbb
+      configuration:
+        content:
+          $text: pipeline_service09.yml
+      external_api_url: https://pipeline-service.eu-de.devops.cloud.ibm.com/pipeline/pipelines/9035b26b-0117-4e2c-bc99-e81631b62bbb
+      label: pass-console-login
+      name: pass-console-login
+      services:
+      - service24
+      ui_pipeline: true
+    service_id: pipeline
+  service10:
+    parameters:
+      api_root_url: https://gitlab.com/api
+      authorized: gitlab
+      enable_traceability: false
+      extra_capabilities:
+      - capability_id: git.issues
+        dashboard_url: https://gitlab.com/passengerplus_console/c_ms_roles/issues
+        display_name: Issues
+        enabled: true
+        label: c_ms_roles
+        readme: false
+        tags:
+        - think
+        - code
+      git_id: gitlab
+      has_issues: true
+      label: c_ms_roles
+      owner_id: passengerplus_console
+      private_repo: true
+      repo_name: c_ms_roles
+      repo_url: https://gitlab.com/passengerplus_console/c_ms_roles.git
+      token_url: https://otc-github-consolidated-broker.eu-de.devops.cloud.ibm.com/github/token?git_id=gitlab
+      type: link
+    service_id: gitlab
+  service11:
+    parameters:
+      api_root_url: https://gitlab.com/api
+      authorized: gitlab
+      enable_traceability: false
+      extra_capabilities:
+      - capability_id: git.issues
+        dashboard_url: https://gitlab.com/passengerplus_console/c_ms_subjects_addresses/issues
+        display_name: Issues
+        enabled: true
+        label: c_ms_subjects_addresses
+        readme: false
+        tags:
+        - think
+        - code
+      git_id: gitlab
+      has_issues: true
+      label: c_ms_subjects_addresses
+      owner_id: passengerplus_console
+      private_repo: true
+      repo_name: c_ms_subjects_addresses
+      repo_url: https://gitlab.com/passengerplus_console/c_ms_subjects_addresses.git
+      token_url: https://otc-github-consolidated-broker.eu-de.devops.cloud.ibm.com/github/token?git_id=gitlab
+      type: link
+    service_id: gitlab
+  service12:
+    parameters:
+      api_root_url: https://gitlab.com/api
+      authorized: gitlab
+      enable_traceability: false
+      extra_capabilities:
+      - capability_id: git.issues
+        dashboard_url: https://gitlab.com/passengerplus_console/c_ms_subjects/issues
+        display_name: Issues
+        enabled: true
+        label: c_ms_subjects
+        readme: false
+        tags:
+        - think
+        - code
+      git_id: gitlab
+      has_issues: true
+      label: c_ms_subjects
+      owner_id: passengerplus_console
+      private_repo: true
+      repo_name: c_ms_subjects
+      repo_url: https://gitlab.com/passengerplus_console/c_ms_subjects.git
+      token_url: https://otc-github-consolidated-broker.eu-de.devops.cloud.ibm.com/github/token?git_id=gitlab
+      type: link
+    service_id: gitlab
+  service13:
+    parameters:
+      api_root_url: https://gitlab.com/api
+      authorized: gitlab
+      enable_traceability: false
+      extra_capabilities:
+      - capability_id: git.issues
+        dashboard_url: https://gitlab.com/passengerplus_console/c_ms_roles_user/issues
+        display_name: Issues
+        enabled: true
+        label: c_ms_roles_user
+        readme: false
+        tags:
+        - think
+        - code
+      git_id: gitlab
+      has_issues: true
+      label: c_ms_roles_user
+      owner_id: passengerplus_console
+      private_repo: true
+      repo_name: c_ms_roles_user
+      repo_url: https://gitlab.com/passengerplus_console/c_ms_roles_user.git
+      token_url: https://otc-github-consolidated-broker.eu-de.devops.cloud.ibm.com/github/token?git_id=gitlab
+      type: link
+    service_id: gitlab
+  service14:
+    parameters:
+      api_url: http://pipeline-service/pipeline/pipelines/73fc8bdb-4061-40c6-abfe-80a888b4b92e
+      configuration:
+        content:
+          $text: pipeline_service14.yml
+      external_api_url: https://pipeline-service.eu-de.devops.cloud.ibm.com/pipeline/pipelines/73fc8bdb-4061-40c6-abfe-80a888b4b92e
+      label: pass-alerts-attachments
+      name: pass-alerts-attachments
+      services:
+      - service16
+      ui_pipeline: true
+    service_id: pipeline
+  service15:
+    parameters:
+      api_url: http://pipeline-service/pipeline/pipelines/37157772-db42-4a53-9761-cf37e6ba69c1
+      configuration:
+        content:
+          $text: pipeline_service15.yml
+      external_api_url: https://pipeline-service.eu-de.devops.cloud.ibm.com/pipeline/pipelines/37157772-db42-4a53-9761-cf37e6ba69c1
+      label: pass-lookup-service-tree
+      name: pass-lookup-service-tree
+      services:
+      - service07
+      ui_pipeline: true
+    service_id: pipeline
+  service16:
+    parameters:
+      api_root_url: https://gitlab.com/api
+      authorized: gitlab
+      enable_traceability: false
+      extra_capabilities:
+      - capability_id: git.issues
+        dashboard_url: https://gitlab.com/passengerplus_console/c_ms_attachments/issues
+        display_name: Issues
+        enabled: true
+        label: c_ms_attachments
+        readme: false
+        tags:
+        - think
+        - code
+      git_id: gitlab
+      has_issues: true
+      label: c_ms_attachments
+      owner_id: passengerplus_console
+      private_repo: true
+      repo_name: c_ms_attachments
+      repo_url: https://gitlab.com/passengerplus_console/c_ms_attachments.git
+      token_url: https://otc-github-consolidated-broker.eu-de.devops.cloud.ibm.com/github/token?git_id=gitlab
+      type: link
+    service_id: gitlab
+  service17:
+    parameters:
+      api_root_url: https://gitlab.com/api
+      authorized: gitlab
+      enable_traceability: false
+      extra_capabilities:
+      - capability_id: git.issues
+        dashboard_url: https://gitlab.com/passengerplus_console/c_ms_alerts/issues
+        display_name: Issues
+        enabled: true
+        label: c_ms_alerts
+        readme: false
+        tags:
+        - think
+        - code
+      git_id: gitlab
+      has_issues: true
+      label: c_ms_alerts
+      owner_id: passengerplus_console
+      private_repo: true
+      repo_name: c_ms_alerts
+      repo_url: https://gitlab.com/passengerplus_console/c_ms_alerts.git
+      token_url: https://otc-github-consolidated-broker.eu-de.devops.cloud.ibm.com/github/token?git_id=gitlab
+      type: link
+    service_id: gitlab
+  service18:
+    parameters:
+      api_url: http://pipeline-service/pipeline/pipelines/25cee92e-bb4c-432d-a42b-823ec4ecc031
+      configuration:
+        content:
+          $text: pipeline_service18.yml
+      external_api_url: https://pipeline-service.eu-de.devops.cloud.ibm.com/pipeline/pipelines/25cee92e-bb4c-432d-a42b-823ec4ecc031
+      label: pass-lookup-service
+      name: pass-lookup-service
+      services:
+      - service21
+      ui_pipeline: true
+    service_id: pipeline
+  service19:
+    parameters:
+      api_url: http://pipeline-service/pipeline/pipelines/2309531d-3f20-419f-ab3d-1692f34a8072
+      configuration:
+        content:
+          $text: pipeline_service19.yml
+      external_api_url: https://pipeline-service.eu-de.devops.cloud.ibm.com/pipeline/pipelines/2309531d-3f20-419f-ab3d-1692f34a8072
+      label: pass-role-catalog
+      name: pass-role-catalog
+      services:
+      - service10
+      ui_pipeline: true
+    service_id: pipeline
+  service20:
+    parameters:
+      api_root_url: https://gitlab.com/api
+      authorized: gitlab
+      enable_traceability: false
+      extra_capabilities:
+      - capability_id: git.issues
+        dashboard_url: https://gitlab.com/passengerplus_console/c_ms_funcodes/issues
+        display_name: Issues
+        enabled: true
+        label: c_ms_funcodes
+        readme: false
+        tags:
+        - think
+        - code
+      git_id: gitlab
+      has_issues: true
+      label: c_ms_funcodes
+      owner_id: passengerplus_console
+      private_repo: true
+      repo_name: c_ms_funcodes
+      repo_url: https://gitlab.com/passengerplus_console/c_ms_funcodes.git
+      token_url: https://otc-github-consolidated-broker.eu-de.devops.cloud.ibm.com/github/token?git_id=gitlab
+      type: link
+    service_id: gitlab
+  service21:
+    parameters:
+      api_root_url: https://gitlab.com/api
+      authorized: gitlab
+      enable_traceability: false
+      extra_capabilities:
+      - capability_id: git.issues
+        dashboard_url: https://gitlab.com/passengerplus_console/c_ms_lookupservice/issues
+        display_name: Issues
+        enabled: true
+        label: c_ms_lookupservice
+        readme: false
+        tags:
+        - think
+        - code
+      git_id: gitlab
+      has_issues: true
+      label: c_ms_lookupservice
+      owner_id: passengerplus_console
+      private_repo: true
+      repo_name: c_ms_lookupservice
+      repo_url: https://gitlab.com/passengerplus_console/c_ms_lookupservice.git
+      token_url: https://otc-github-consolidated-broker.eu-de.devops.cloud.ibm.com/github/token?git_id=gitlab
+      type: link
+    service_id: gitlab
+  service22:
+    parameters:
+      api_url: http://pipeline-service/pipeline/pipelines/ee0e92a5-229c-4582-876c-c346f989950f
+      configuration:
+        content:
+          $text: pipeline_service22.yml
+      external_api_url: https://pipeline-service.eu-de.devops.cloud.ibm.com/pipeline/pipelines/ee0e92a5-229c-4582-876c-c346f989950f
+      label: pass-addresses
+      name: pass-addresses
+      services:
+      - service06
+      ui_pipeline: true
+    service_id: pipeline
+  service23:
+    parameters:
+      api_root_url: https://gitlab.com/api
+      authorized: gitlab
+      enable_traceability: false
+      extra_capabilities:
+      - capability_id: git.issues
+        dashboard_url: https://gitlab.com/passengerplus_console/c_ms_permissions/issues
+        display_name: Issues
+        enabled: true
+        label: c_ms_permissions
+        readme: false
+        tags:
+        - think
+        - code
+      git_id: gitlab
+      has_issues: true
+      label: c_ms_permissions
+      owner_id: passengerplus_console
+      private_repo: true
+      repo_name: c_ms_permissions
+      repo_url: https://gitlab.com/passengerplus_console/c_ms_permissions.git
+      token_url: https://otc-github-consolidated-broker.eu-de.devops.cloud.ibm.com/github/token?git_id=gitlab
+      type: link
+    service_id: gitlab
+  service24:
+    parameters:
+      api_root_url: https://gitlab.com/api
+      authorized: gitlab
+      enable_traceability: false
+      extra_capabilities:
+      - capability_id: git.issues
+        dashboard_url: https://gitlab.com/passengerplus_console/c_ms_login/issues
+        display_name: Issues
+        enabled: true
+        label: c_ms_login
+        readme: false
+        tags:
+        - think
+        - code
+      git_id: gitlab
+      has_issues: true
+      label: c_ms_login
+      owner_id: passengerplus_console
+      private_repo: true
+      repo_name: c_ms_login
+      repo_url: https://gitlab.com/passengerplus_console/c_ms_login.git
+      token_url: https://otc-github-consolidated-broker.eu-de.devops.cloud.ibm.com/github/token?git_id=gitlab
+      type: link
+    service_id: gitlab
+template:
+  description: Despliegues CONSOLE-PRE
+  name: Cree su propia cadena de herramientas
+  required:
+  - service06
+  - service07
+  - service10
+  - service11
+  - service12
+  - service13
+  - service16
+  - service17
+  - service20
+  - service21
+  - service23
+  - service24
+toolchain:
+  name: Despliegue CONSOLE-PRE
+version: "2"

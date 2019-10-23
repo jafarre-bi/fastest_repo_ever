@@ -1,0 +1,369 @@
+stages:
+- inputs:
+  - branch: release
+    dir_name: null
+    type: git
+    service: service12
+  jobs:
+  - BUILD_COMMAND: "#!/bin/bash\n# environment variables are available:\n# MAVEN_NAME:
+      name of the service instance\n# MAVEN_USER_ID: userid for the maven repository\n#
+      MAVEN_TOKEN: the token or password for the maven repository\n# MAVEN_SNAPSHOT_URL:
+      the maven snapshot repository\n# MAVEN_RELEASE_URL: the maven release repository\n#
+      MAVEN_MIRROR_URL: the maven mirror repository\n# SONAR_INSTANCE_NAME: the name
+      of the SonarQube instance\n# SONAR_SERVER_URL: the url of the SonarQube server\n#
+      SONAR_USER_ID: SonarQube user name\n# SONAR_USER_TOKEN: SonarQube password or
+      authentication token\n# The settings.xml is available in $HOME/.m2/settings.xml\n#
+      The name of the snapshots repository is 'snapshots'\n# The name of the release
+      repository is 'releases'\n# The name of the mirror repository is 'central'\n\nmvn
+      -B clean package \n#mvn -DaltDeploymentRepository=snapshots::default::${MAVEN_SNAPSHOT_URL}
+      deploy\n"
+    SERVICE_INSTANCE: (default)
+    SERVICE_INSTANCE_TYPE: nexus
+    SONAR_SERVICE_INSTANCE: (default)
+    curatedDockerImage: latest
+    extension_id: ibm.devops.services.pipeline.maven.build.deploy
+    name: Compile
+    type: builder
+  name: COMPILE c_ms_subjects
+  permission:
+    execute: TOOLCHAIN_MEMBERS
+- inputs:
+  - dir_name: null
+    job: Compile
+    stage: COMPILE c_ms_subjects
+    type: job
+  jobs:
+  - artifact_dir: ""
+    build_type: cr
+    curatedDockerImage: latest
+    image_name: pass-subjects
+    name: Pre-build check
+    namespace: passenger-plus-console-pre
+    script: "#!/bin/bash\n# uncomment to debug the script\n# set -x\n# copy the script
+      below into your app code repo (e.g. ./scripts/check_prebuild.sh) and 'source'
+      it from your pipeline job\n#    source ./scripts/check_prebuild.sh\n# alternatively,
+      you can source it from online script:\n#    source <(curl -sSL \"https://raw.githubusercontent.com/open-toolchain/commons/master/scripts/check_prebuild.sh\")\n#
+      ------------------\n# source: https://raw.githubusercontent.com/open-toolchain/commons/master/scripts/check_prebuild.sh\necho
+      \"REGISTRY_URL=${REGISTRY_URL}\"\necho \"REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE}\"\necho
+      \"IMAGE_NAME=${IMAGE_NAME}\"\necho \"ARCHIVE_DIR=${ARCHIVE_DIR}\"\necho \"DOCKER_ROOT=${DOCKER_ROOT}\"\necho
+      \"DOCKER_FILE=${DOCKER_FILE}\"\n\n# View build properties\nif [ -f build.properties
+      ]; then \n  echo \"build.properties:\"\n  cat build.properties\nelse \n  echo
+      \"build.properties : not found\"\nfi \n# also run 'env' command to find all
+      available env variables\n# or learn more about the available environment variables
+      at:\n# https://console.bluemix.net/docs/services/ContinuousDelivery/pipeline_deploy_var.html#deliverypipeline_environment\n\necho
+      \"==========================================================\"\necho \"Checking
+      for Dockerfile at the repository root\"\nif [ -z \"${DOCKER_ROOT}\" ]; then
+      DOCKER_ROOT=. ; fi\nif [ -z \"${DOCKER_FILE}\" ]; then DOCKER_FILE=Dockerfile
+      ; fi\nif [ -f ${DOCKER_ROOT}/${DOCKER_FILE} ]; then \necho -e \"Dockerfile found
+      at: ${DOCKER_FILE}\"\nelse\n    echo \"Dockerfile not found at: ${DOCKER_FILE}\"\n
+      \   exit 1\nfi\necho \"Linting Dockerfile\"\nnpm install -g dockerlint\ndockerlint
+      -f ${DOCKER_ROOT}/${DOCKER_FILE}\n\necho \"==========================================================\"\necho
+      \"Checking registry current plan and quota\"\nbx cr plan\nbx cr quota\necho
+      \"If needed, discard older images using: bx cr image-rm\"\necho \"Checking registry
+      namespace: ${REGISTRY_NAMESPACE}\"\nNS=$( bx cr namespaces | grep ${REGISTRY_NAMESPACE}
+      ||: )\nif [ -z \"${NS}\" ]; then\n    echo \"Registry namespace ${REGISTRY_NAMESPACE}
+      not found, creating it.\"\n    bx cr namespace-add ${REGISTRY_NAMESPACE}\n    echo
+      \"Registry namespace ${REGISTRY_NAMESPACE} created.\"\nelse \n    echo \"Registry
+      namespace ${REGISTRY_NAMESPACE} found.\"\nfi\necho -e \"Existing images in registry\"\nbx
+      cr images --restrict ${REGISTRY_NAMESPACE}\n# echo \"==========================================================\"\n#
+      KEEP=1\n# echo -e \"PURGING REGISTRY, only keeping last ${KEEP} image(s) based
+      on image digests\"\n# COUNT=0\n# LIST=$( bx cr images --restrict ${REGISTRY_NAMESPACE}/${IMAGE_NAME}
+      --no-trunc --format '__not_implemented__ __not_implemented__@__not_implemented__'
+      | sort -r -u | awk '{print $2}' | sed '$ d' )\n# while read -r IMAGE_URL ; do\n#
+      \  if [[ \"$COUNT\" -lt \"$KEEP\" ]]; then\n#     echo \"Keeping image digest:
+      ${IMAGE_URL}\"\n#   else\n#     bx cr image-rm \"${IMAGE_URL}\"\n#   fi\n#   COUNT=$((COUNT+1))
+      \n# done <<< \"$LIST\"\n# if [[ \"$COUNT\" -gt 1 ]]; then\n#   echo \"Content
+      of image registry\"\n#   bx cr images\n# fi"
+    target:
+      account_guid: 57f94c7a634d038c476b6111c069fc9f
+      api_key: fh/6/xPXfgd3qkfhJgsHXG7gpY7cW/eAi+a6B+MANJfIhuLJgjtBcgM9I6xdTRnnQivgI3QCx+70jKTkn0K4zQ==
+      region_id: ibm:yp:eu-de
+    type: builder
+  - artifact_dir: ""
+    build_type: cr
+    curatedDockerImage: latest
+    image_name: pass-subjects
+    name: 'Build Docker image '
+    namespace: passenger-plus-console-pre
+    script: "#!/bin/bash\n# uncomment to debug the script\n#set -x\n# copy the script
+      below into your app code repo (e.g. ./scripts/build_image.sh) and 'source' it
+      from your pipeline job\n#    source ./scripts/build_image.sh\n# alternatively,
+      you can source it from online script:\n#    source <(curl -sSL \"https://raw.githubusercontent.com/open-toolchain/commons/master/scripts/build_image.sh\")\n#
+      ------------------\n# source: https://raw.githubusercontent.com/open-toolchain/commons/master/scripts/build_image.sh\n\n#
+      This script does build a Docker image into IBM Cloud Kubernetes Service private
+      image registry, and copies information into\n# a build.properties file, so they
+      can be reused later on by other scripts (e.g. image url, chart name, ...)\necho
+      \"REGISTRY_URL=${REGISTRY_URL}\"\necho \"REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE}\"\necho
+      \"IMAGE_NAME=${IMAGE_NAME}\"\necho \"IMAGE_TAG=${IMAGE_TAG}\"\necho \"BUILD_NUMBER=${BUILD_NUMBER}\"\necho
+      \"ARCHIVE_DIR=${ARCHIVE_DIR}\"\necho \"GIT_BRANCH=${GIT_BRANCH}\"\necho \"GIT_COMMIT=${GIT_COMMIT}\"\necho
+      \"DOCKER_ROOT=${DOCKER_ROOT}\"\necho \"DOCKER_FILE=${DOCKER_FILE}\"\n\n# View
+      build properties\nif [ -f build.properties ]; then \n  echo \"build.properties:\"\n
+      \ cat build.properties\nelse \n  echo \"build.properties : not found\"\nfi \n#
+      also run 'env' command to find all available env variables\n# or learn more
+      about the available environment variables at:\n# https://console.bluemix.net/docs/services/ContinuousDelivery/pipeline_deploy_var.html#deliverypipeline_environment\n\n#
+      To review or change build options use:\n# bx cr build --help\n\necho -e \"Existing
+      images in registry\"\nbx cr images\necho \"==========================================================\"\necho
+      -e \"BUILDING CONTAINER IMAGE: ${IMAGE_NAME}:${IMAGE_TAG}\"\nif [ -z \"${DOCKER_ROOT}\"
+      ]; then DOCKER_ROOT=. ; fi\nif [ -z \"${DOCKER_FILE}\" ]; then DOCKER_FILE=${DOCKER_ROOT}/Dockerfile
+      ; fi\nset -x\nbx cr build -t ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_TAG}
+      ${DOCKER_ROOT} -f ${DOCKER_FILE}\nset +x\n\nbx cr image-inspect ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_TAG}\n\n#
+      Set PIPELINE_IMAGE_URL for subsequent jobs in stage (e.g. Vulnerability Advisor)\nexport
+      PIPELINE_IMAGE_URL=\"$REGISTRY_URL/$REGISTRY_NAMESPACE/$IMAGE_NAME:$IMAGE_TAG\"\n\nbx
+      cr images --restrict ${REGISTRY_NAMESPACE}/${IMAGE_NAME}\n\n######################################################################################\n#
+      Copy any artifacts that will be needed for deployment and testing to $WORKSPACE
+      \   #\n######################################################################################\necho
+      \"==========================================================\"\necho \"COPYING
+      ARTIFACTS needed for deployment and testing (in particular build.properties)\"\n\necho
+      \"Checking archive dir presence\"\nif [ -z \"${ARCHIVE_DIR}\" ]; then\n  echo
+      -e \"Build archive directory contains entire working directory.\"\nelse\n  echo
+      -e \"Copying working dir into build archive directory: ${ARCHIVE_DIR} \"\n  mkdir
+      -p ${ARCHIVE_DIR}\n  find . -mindepth 1 -maxdepth 1 -not -path \"./$ARCHIVE_DIR\"
+      -exec cp -R '{}' \"${ARCHIVE_DIR}/\" ';'\nfi\n\n# Persist env variables into
+      a properties file (build.properties) so that all pipeline stages consuming this\n#
+      build as input and configured with an environment properties file valued 'build.properties'\n#
+      will be able to reuse the env variables in their job shell scripts.\n\n# If
+      already defined build.properties from prior build job, append to it.\ncp build.properties
+      $ARCHIVE_DIR/ || :\n\n# IMAGE information from build.properties is used in Helm
+      Chart deployment to set the release name\necho \"IMAGE_NAME=${IMAGE_NAME}\"
+      >> $ARCHIVE_DIR/build.properties\necho \"IMAGE_TAG=${IMAGE_TAG}\" >> $ARCHIVE_DIR/build.properties\n#
+      REGISTRY information from build.properties is used in Helm Chart deployment
+      to generate cluster secret\necho \"REGISTRY_URL=${REGISTRY_URL}\" >> $ARCHIVE_DIR/build.properties\necho
+      \"REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE}\" >> $ARCHIVE_DIR/build.properties\necho
+      \"GIT_BRANCH=${GIT_BRANCH}\" >> $ARCHIVE_DIR/build.properties\necho \"File 'build.properties'
+      created for passing env variables to subsequent pipeline jobs:\"\ncat $ARCHIVE_DIR/build.properties\n"
+    target:
+      account_guid: 57f94c7a634d038c476b6111c069fc9f
+      api_key: fh/6/xPXfgd3qkfhJgsHXG7gpY7cW/eAi+a6B+MANJfIhuLJgjtBcgM9I6xdTRnnQivgI3QCx+70jKTkn0K4zQ==
+      region_id: ibm:yp:eu-de
+    type: builder
+  name: BUILD c_ms_subjects
+  permission:
+    execute: TOOLCHAIN_ADMINS
+  properties:
+  - name: DOCKER_ROOT
+    type: text
+    value: .
+  - name: DOCKER_FILE
+    type: text
+    value: Dockerfile
+  - name: IMAGE_TAG
+    type: text
+    value: latest
+  triggers:
+  - type: stage
+- inputs:
+  - dir_name: null
+    job: 'Build Docker image '
+    stage: BUILD c_ms_subjects
+    type: job
+  jobs:
+  - curatedDockerImage: latest
+    deploy_type: kubernetes
+    name: Pre-deploy check
+    script: "#!/bin/bash\n# uncomment to debug the script\n#set -x\n# copy the script
+      below into your app code repo (e.g. ./scripts/check_predeploy.sh) and 'source'
+      it from your pipeline job\n#    source ./scripts/check_predeploy_kubectl.sh\n#
+      alternatively, you can source it from online script:\n#    source <(curl -sSL
+      \"https://raw.githubusercontent.com/open-toolchain/commons/master/scripts/check_predeploy_kubectl.sh\")\n#
+      ------------------\n# source: https://raw.githubusercontent.com/open-toolchain/commons/master/scripts/check_predeploy_kubectl.sh\n\n#
+      This script checks the IBM Cloud Kubernetes Service cluster is ready, has a
+      namespace configured with access to the private\n# image registry (using an
+      IBM Cloud API Key). It also configures Helm Tiller service to later perform
+      a deploy with Helm.\n\n# Input env variables (can be received via a pipeline
+      environment properties.file.\necho \"IMAGE_NAME=${IMAGE_NAME}\"\necho \"IMAGE_TAG=${IMAGE_TAG}\"\necho
+      \"REGISTRY_URL=${REGISTRY_URL}\"\necho \"REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE}\"\n\n#
+      View build properties\nif [ -f build.properties ]; then \n  echo \"build.properties:\"\n
+      \ cat build.properties\nelse \n  echo \"build.properties : not found\"\nfi \n#
+      also run 'env' command to find all available env variables\n# or learn more
+      about the available environment variables at:\n# https://console.bluemix.net/docs/services/ContinuousDelivery/pipeline_deploy_var.html#deliverypipeline_environment\n\n#
+      Input env variables from pipeline job\necho \"PIPELINE_KUBERNETES_CLUSTER_NAME=${PIPELINE_KUBERNETES_CLUSTER_NAME}\"\necho
+      \"CLUSTER_NAMESPACE=${CLUSTER_NAMESPACE}\"\n\necho \"==========================================================\"\necho
+      \"CHECKING DEPLOYMENT.YML manifest\"\n#Update deployment.yml with image name\nif
+      [ -z \"${DEPLOYMENT_FILE}\" ]; then DEPLOYMENT_FILE=deployment.yml ; fi\nif
+      [ ! -f ${DEPLOYMENT_FILE} ]; then\n    echo -e \"${red}Kubernetes deployment
+      file '${DEPLOYMENT_FILE}' not found${no_color}\"\n    exit 1\nfi\n\n#Check cluster
+      availability\necho \"==========================================================\"\necho
+      \"CHECKING CLUSTER readiness and namespace existence\"\nIP_ADDR=$( bx cs workers
+      ${PIPELINE_KUBERNETES_CLUSTER_NAME} | grep normal | awk '{ print $2 }' )\nif
+      [ -z \"${IP_ADDR}\" ]; then\n  echo -e \"${PIPELINE_KUBERNETES_CLUSTER_NAME}
+      not created or workers not ready\"\n  exit 1\nfi\necho \"Configuring cluster
+      namespace\"\nif kubectl get namespace ${CLUSTER_NAMESPACE}; then\n  echo -e
+      \"Namespace ${CLUSTER_NAMESPACE} found.\"\nelse\n  kubectl create namespace
+      ${CLUSTER_NAMESPACE}\n  echo -e \"Namespace ${CLUSTER_NAMESPACE} created.\"\nfi\n\n#
+      Grant access to private image registry from namespace $CLUSTER_NAMESPACE\n#
+      reference https://console.bluemix.net/docs/containers/cs_cluster.html#bx_registry_other\necho
+      \"==========================================================\"\necho -e \"CONFIGURING
+      ACCESS to private image registry from namespace ${CLUSTER_NAMESPACE}\"\nIMAGE_PULL_SECRET_NAME=\"ibmcloud-toolchain-${PIPELINE_TOOLCHAIN_ID}-${REGISTRY_URL}\"\n\necho
+      -e \"Checking for presence of ${IMAGE_PULL_SECRET_NAME} imagePullSecret for
+      this toolchain\"\nif ! kubectl get secret ${IMAGE_PULL_SECRET_NAME} --namespace
+      ${CLUSTER_NAMESPACE}; then\n  echo -e \"${IMAGE_PULL_SECRET_NAME} not found
+      in ${CLUSTER_NAMESPACE}, creating it\"\n  # for Container Registry, docker username
+      is 'token' and email does not matter\n  kubectl --namespace ${CLUSTER_NAMESPACE}
+      create secret docker-registry ${IMAGE_PULL_SECRET_NAME} --docker-server=${REGISTRY_URL}
+      --docker-password=${PIPELINE_BLUEMIX_API_KEY} --docker-username=iamapikey --docker-email=a@b.com\nelse\n
+      \ echo -e \"Namespace ${CLUSTER_NAMESPACE} already has an imagePullSecret for
+      this toolchain.\"\nfi\nSERVICE_ACCOUNT=$(kubectl get serviceaccount default
+      \ -o json --namespace ${CLUSTER_NAMESPACE} )\nif ! echo ${SERVICE_ACCOUNT} |
+      jq -e '. | has(\"imagePullSecrets\")' > /dev/null ; then\n  kubectl patch --namespace
+      ${CLUSTER_NAMESPACE} serviceaccount/default -p '{\"imagePullSecrets\":[{\"name\":\"'\"${IMAGE_PULL_SECRET_NAME}\"'\"}]}'\nelse\n
+      \ if echo ${SERVICE_ACCOUNT} | jq -e '.imagePullSecrets[] | select(.name==\"'\"${IMAGE_PULL_SECRET_NAME}\"'\")'
+      > /dev/null ; then \n    echo -e \"Pull secret already found in default serviceAccount\"\n
+      \ else\n    echo \"Inserting toolchain pull secret into default serviceAccount\"\n
+      \   kubectl patch --namespace ${CLUSTER_NAMESPACE} serviceaccount/default --type='json'
+      -p='[{\"op\":\"add\",\"path\":\"/imagePullSecrets/-\",\"value\":{\"name\": \"'\"${IMAGE_PULL_SECRET_NAME}\"'\"}}]'\n
+      \ fi\nfi\necho \"default serviceAccount:\"\nkubectl get serviceaccount default
+      --namespace ${CLUSTER_NAMESPACE} -o yaml\necho -e \"Namespace ${CLUSTER_NAMESPACE}
+      authorizing with private image registry using patched default serviceAccount\"\n"
+    target:
+      account_guid: 57f94c7a634d038c476b6111c069fc9f
+      api_key: fh/6/xPXfgd3qkfhJgsHXG7gpY7cW/eAi+a6B+MANJfIhuLJgjtBcgM9I6xdTRnnQivgI3QCx+70jKTkn0K4zQ==
+      kubernetes_cluster: IBERMicroPRODStepFran02
+      region_id: ibm:yp:eu-de
+      resource_group: IBERMicroFran
+    type: deployer
+  - curatedDockerImage: latest
+    deploy_type: kubernetes
+    name: Deploy to kubernetes
+    script: "#!/bin/bash\n# uncomment to debug the script\n#set -x\n# copy the script
+      below into your app code repo (e.g. ./scripts/deploy_kubectl.sh) and 'source'
+      it from your pipeline job\n#    source ./scripts/deploy_kubectl.sh\n# alternatively,
+      you can source it from online script:\n#    source <(curl -sSL \"https://raw.githubusercontent.com/open-toolchain/commons/master/scripts/deploy_kubectl.sh\")\n#
+      ------------------\n# source: https://raw.githubusercontent.com/open-toolchain/commons/master/scripts/deploy_kubectl.sh\n#
+      Input env variables (can be received via a pipeline environment properties.file.\necho
+      \"IMAGE_NAME=${IMAGE_NAME}\"\necho \"IMAGE_TAG=${IMAGE_TAG}\"\necho \"REGISTRY_URL=${REGISTRY_URL}\"\necho
+      \"REGISTRY_NAMESPACE=${REGISTRY_NAMESPACE}\"\necho \"DEPLOYMENT_FILE=${DEPLOYMENT_FILE}\"\n\n#View
+      build properties\n# cat build.properties\n# also run 'env' command to find all
+      available env variables\n# or learn more about the available environment variables
+      at:\n# https://console.bluemix.net/docs/services/ContinuousDelivery/pipeline_deploy_var.html#deliverypipeline_environment\n\n#
+      Input env variables from pipeline job\necho \"PIPELINE_KUBERNETES_CLUSTER_NAME=${PIPELINE_KUBERNETES_CLUSTER_NAME}\"\nif
+      [ -z \"${CLUSTER_NAMESPACE}\" ]; then CLUSTER_NAMESPACE=default ; fi\necho \"CLUSTER_NAMESPACE=${CLUSTER_NAMESPACE}\"\n\necho
+      \"==========================================================\"\necho \"DEPLOYING
+      using manifest\"\necho -e \"Updating ${DEPLOYMENT_FILE} with image name: ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_TAG}\"\nif
+      [ -z \"${DEPLOYMENT_FILE}\" ]; then DEPLOYMENT_FILE=deployment.yml ; fi\nif
+      [ -f ${DEPLOYMENT_FILE} ]; then\n    sed -i \"s~^\\([[:blank:]]*\\)image:.*$~\\1image:
+      ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_TAG}~\" ${DEPLOYMENT_FILE}\n
+      \   cat ${DEPLOYMENT_FILE}\nelse \n    echo -e \"${red}Kubernetes deployment
+      file '${DEPLOYMENT_FILE}' not found${no_color}\"\n    exit 1\nfi    \nset -x\nkubectl
+      apply --namespace ${CLUSTER_NAMESPACE} -f ${DEPLOYMENT_FILE} \nset +x\n\necho
+      \"\"\necho \"==========================================================\"\nIMAGE_REPOSITORY=${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}\necho
+      -e \"CHECKING deployment status of ${IMAGE_REPOSITORY}:${IMAGE_TAG}\"\necho
+      \"\"\nfor ITERATION in {1..30}\ndo\n  DATA=$( kubectl get pods --namespace ${CLUSTER_NAMESPACE}
+      -o json )\n  NOT_READY=$( echo $DATA | jq '.items[].status | select(.containerStatuses!=null)
+      | .containerStatuses[] | select(.image==\"'\"${IMAGE_REPOSITORY}:${IMAGE_TAG}\"'\")
+      | select(.ready==false) ' )\n  if [[ -z \"$NOT_READY\" ]]; then\n    echo -e
+      \"All pods are ready:\"\n    echo $DATA | jq '.items[].status | select(.containerStatuses!=null)
+      | .containerStatuses[] | select(.image==\"'\"${IMAGE_REPOSITORY}:${IMAGE_TAG}\"'\")
+      | select(.ready==true) '\n    break # deployment succeeded\n  fi\n  REASON=$(echo
+      $DATA | jq '.items[].status | select(.containerStatuses!=null) | .containerStatuses[]
+      | select(.image==\"'\"${IMAGE_REPOSITORY}:${IMAGE_TAG}\"'\") | .state.waiting.reason')\n
+      \ echo -e \"${ITERATION} : Deployment still pending...\"\n  echo -e \"NOT_READY:${NOT_READY}\"\n
+      \ echo -e \"REASON: ${REASON}\"\n  if [[ ${REASON} == *ErrImagePull* ]] || [[
+      ${REASON} == *ImagePullBackOff* ]]; then\n    echo \"Detected ErrImagePull or
+      ImagePullBackOff failure. \"\n    echo \"Please check proper authenticating
+      to from cluster to image registry (e.g. image pull secret)\"\n    break; # no
+      need to wait longer, error is fatal\n  elif [[ ${REASON} == *CrashLoopBackOff*
+      ]]; then\n    echo \"Detected CrashLoopBackOff failure. \"\n    echo \"Application
+      is unable to start, check the application startup logs\"\n    break; # no need
+      to wait longer, error is fatal\n  fi\n  sleep 5\ndone\n\nAPP_NAME=$(kubectl
+      get pods --namespace ${CLUSTER_NAMESPACE} -o json | jq -r '.items[].status |
+      select(.containerStatuses!=null) | .containerStatuses[] | select(.image==\"'\"${IMAGE_REPOSITORY}:${IMAGE_TAG}\"'\")
+      | .name' | head -n 1)\necho -e \"APP: ${APP_NAME}\"\necho \"DEPLOYED PODS:\"\nkubectl
+      describe pods --selector app=${APP_NAME} --namespace ${CLUSTER_NAMESPACE}\nif
+      [ ! -z \"${APP_NAME}\" ]; then\n  APP_SERVICE=$(kubectl get services --namespace
+      ${CLUSTER_NAMESPACE} -o json | jq -r ' .items[] | select (.spec.selector.app==\"'\"${APP_NAME}\"'\")
+      | .metadata.name ')\n  echo -e \"SERVICE: ${APP_SERVICE}\"\n  echo \"DEPLOYED
+      SERVICES:\"\n  kubectl describe services ${APP_SERVICE} --namespace ${CLUSTER_NAMESPACE}\nfi\n#echo
+      \"Application Logs\"\n#kubectl logs --selector app=${APP_NAME} --namespace ${CLUSTER_NAMESPACE}
+      \ \necho \"\"\nif [[ ! -z \"$NOT_READY\" ]]; then\n  echo \"\"\n  echo \"==========================================================\"\n
+      \ echo \"DEPLOYMENT FAILED\"\n  exit 1\nfi\n\necho \"\"\necho \"==========================================================\"\necho
+      \"DEPLOYMENT SUCCEEDED\"\nif [ ! -z \"${APP_SERVICE}\" ]; then\n  echo \"\"\n
+      \ IP_ADDR=$(bx cs workers ${PIPELINE_KUBERNETES_CLUSTER_NAME} | grep normal
+      | head -n 1 | awk '{ print $2 }')\n  PORT=$( kubectl get services --namespace
+      ${CLUSTER_NAMESPACE} | grep ${APP_SERVICE} | sed 's/.*:\\([0-9]*\\).*/\\1/g'
+      )\n  echo \"\"\n  echo -e \"VIEW THE APPLICATION AT: http://${IP_ADDR}:${PORT}\"\nfi\n"
+    target:
+      account_guid: 57f94c7a634d038c476b6111c069fc9f
+      api_key: fh/6/xPXfgd3qkfhJgsHXG7gpY7cW/eAi+a6B+MANJfIhuLJgjtBcgM9I6xdTRnnQivgI3QCx+70jKTkn0K4zQ==
+      kubernetes_cluster: IBERMicroPRODStepFran02
+      region_id: ibm:yp:eu-de
+      resource_group: IBERMicroFran
+    type: deployer
+  - curatedDockerImage: latest
+    deploy_type: kubernetes
+    name: Update pod
+    script: |-
+      #!/bin/bash
+      echo "DEPLOYMENT_FILE=${DEPLOYMENT_FILE}"
+      echo "=========================================================="
+      IMAGE_REPOSITORY=${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}
+      echo -e "CHECKING deployment status of ${IMAGE_REPOSITORY}:${IMAGE_TAG}"
+      echo ""
+      for ITERATION in {1..30}
+      do
+        DATA=$( kubectl get pods --namespace ${CLUSTER_NAMESPACE} -o json )
+        NOT_READY=$( echo $DATA | jq '.items[].status | select(.containerStatuses!=null) | .containerStatuses[] | select(.image=="'"${IMAGE_REPOSITORY}:${IMAGE_TAG}"'") | select(.ready==false) ' )
+        if [[ -z "$NOT_READY" ]]; then
+          echo -e "All pods are ready:"
+          echo $DATA | jq '.items[].status | select(.containerStatuses!=null) | .containerStatuses[] | select(.image=="'"${IMAGE_REPOSITORY}:${IMAGE_TAG}"'") | select(.ready==true) '
+          break # deployment succeeded
+        fi
+        REASON=$(echo $DATA | jq '.items[].status | select(.containerStatuses!=null) | .containerStatuses[] | select(.image=="'"${IMAGE_REPOSITORY}:${IMAGE_TAG}"'") | .state.waiting.reason')
+        echo -e "${ITERATION} : Deployment still pending..."
+        echo -e "NOT_READY:${NOT_READY}"
+        echo -e "REASON: ${REASON}"
+        if [[ ${REASON} == *ErrImagePull* ]] || [[ ${REASON} == *ImagePullBackOff* ]]; then
+          echo "Detected ErrImagePull or ImagePullBackOff failure. "
+          echo "Please check proper authenticating to from cluster to image registry (e.g. image pull secret)"
+          break; # no need to wait longer, error is fatal
+        elif [[ ${REASON} == *CrashLoopBackOff* ]]; then
+          echo "Detected CrashLoopBackOff failure. "
+          echo "Application is unable to start, check the application startup logs"
+          break; # no need to wait longer, error is fatal
+        fi
+        sleep 5
+      done
+
+      APP_NAME=$(kubectl get pods --namespace ${CLUSTER_NAMESPACE} -o json | jq -r '.items[].status | select(.containerStatuses!=null) | .containerStatuses[] | select(.image=="'"${IMAGE_REPOSITORY}:${IMAGE_TAG}"'") | .name' | head -n 1)
+      echo -e "APP: ${APP_NAME}"
+      echo "DEPLOYED PODS:"
+      kubectl describe pods --selector app=${APP_NAME} --namespace ${CLUSTER_NAMESPACE}
+      if [ ! -z "${APP_NAME}" ]; then
+        APP_SERVICE=$(kubectl get services --namespace ${CLUSTER_NAMESPACE} -o json | jq -r ' .items[] | select (.spec.selector.app=="'"${APP_NAME}"'") | .metadata.name ')
+        echo -e "SERVICE: ${APP_SERVICE}"
+        echo "DEPLOYED SERVICES:"
+        kubectl describe services ${APP_SERVICE} --namespace ${CLUSTER_NAMESPACE}
+      fi
+      echo '**********************************************************************************'
+      echo 'APP_NAME' ${APP_NAME}
+      podName=$(echo $(kubectl get pods | grep ${APP_NAME}) | cut -d ' ' -f 1)
+      echo 'Eliminando el pod: ' $podName
+      kubectl delete pod ${podName}
+      echo '===================================================================================='
+      echo 'Send mesage'
+      # Input env variables from pipeline job
+      echo "PIPELINE_KUBERNETES_CLUSTER_NAME=${PIPELINE_KUBERNETES_CLUSTER_NAME}"
+
+      curl -X POST -H 'Content-type: application/json' --data '{"text":" Desplegado  c_ms_subjects en IBERMicroPRODStepFran02"}' https://hooks.slack.com/services/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
+    target:
+      account_guid: 57f94c7a634d038c476b6111c069fc9f
+      api_key: fh/6/xPXfgd3qkfhJgsHXG7gpY7cW/eAi+a6B+MANJfIhuLJgjtBcgM9I6xdTRnnQivgI3QCx+70jKTkn0K4zQ==
+      kubernetes_cluster: IBERMicroPRODStepFran02
+      region_id: ibm:yp:eu-de
+      resource_group: IBERMicroFran
+    type: deployer
+  name: DEPLOY c_ms_subjects
+  permission:
+    execute: TOOLCHAIN_ADMINS
+  properties:
+  - name: CLUSTER_NAMESPACE
+    type: text
+    value: default
+  - name: DEPLOYMENT_FILE
+    type: text
+    value: deployment-pre.yaml
+  - name: buildprops
+    type: file
+    value: build.properties
+  triggers:
+  - type: stage
+properties: []
